@@ -1,0 +1,232 @@
+<html>
+<head>
+<link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+<table id="wrapperTable">
+<tr><td id="firstCol">
+
+<form id="sell" method="POST" action="sellQty">
+<table>
+<tr>
+<td colspan="2"><h1>Sell</h1></td>
+</tr>
+<tr>
+<td>Product Category</td><td><select name="productCategory" class="productCategory"></select></td>
+</tr>
+<tr>
+<td>Product Name</td><td><select name="productName" class="productName"></select></td>
+</tr>
+<tr>
+<td>Available Qty</td><td><p class="availQty"></p></td>
+</tr>
+<tr>
+<td>Quantities sold</td><td><input type="number" name="quantitiesSold"></td>
+</tr>
+<tr>
+<td><input type="reset" value="Clear"></td><td><input type="submit" value="Sell"></td>
+</tr>
+</table>
+</form>
+
+<form id="updateQuantity" method="POST" action="updateQty">
+<table>
+<tr>
+<td colspan="2"><h1>Add Quantity</h1></td>
+</tr>
+<tr>
+<td>Product Category</td><td><select name="productCategory" class="productCategory"></select></td>
+</tr>
+<tr>
+<td>Product Name</td><td><select name="productName" class="productName"></select></td>
+</tr>
+<tr>
+<td>Available Qty</td><td><p class="availQty"></p></td>
+</tr>
+<tr>
+<td>Quantity to add</td><td><input type="number" name="toAdd"></td>
+</tr>
+<tr>
+<td><input type="reset" value="Clear"></td><td><input type="submit" value="Update"></td>
+</tr>
+</table>
+</form>
+
+<form id="addProduct" method="POST" action="createProduct">
+<table>
+<tr>
+<td colspan="2"><h1>New Product</h1></td>
+</tr>
+<tr>
+<td>Product Category</td><td><select class="productCategory" name="productCategory"></select></td>
+</tr> 	
+<tr>
+<td>Product Name</td><td><input type="text" name="productName"></td>
+</tr>
+<tr>
+<td>Quantities available</td><td><input type="number" name="quantitiesAvailable"></td>
+</tr>
+<tr>
+<td><input type="reset" value="Clear"></td><td><input type="submit" value="Create"></td>
+</tr>
+</table>
+</form>
+
+<form id="createCategory" method="POST" action="createCategory">
+<table>
+<tr>
+<td colspan="2"><h1>New Category</h1></td>
+</tr>
+<tr>
+<td>Product Category</td><td><input type="text" name="productCategory"></select></td>
+</tr>
+</tr>
+<tr>
+<td><input type="reset" value="Clear"></td><td><input type="submit" value="Create"></td>
+</tr>
+</table>
+</form>
+
+</td>
+
+<td id="secondCol">
+
+<table id="todaysSale">
+<tr><td>Timestamp</td><td>Product</td><td>Qty Sold</td><td>Price</td><td>Total</td></tr>
+</table>
+
+<table id="prodLog">
+<tr style="background-color:blue;color:white"><td>Product</td><td>Type</td><td>Date</td><td>Time</td><td>Qty sold</td></tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+<script src="js/home.js"></script>
+<script>
+var init_msg='__INIT_ALERT__';
+if(init_msg!=undefined && init_msg!="" && !init_msg.startsWith("PROD_CHANGE_OBJ:")){
+  alert(init_msg);
+}
+
+var productCategories = document.querySelectorAll(".productCategory");
+var SELECTED_CATEG = "__SELECTED_CATEG__";
+
+function createCategoryOptions(parentSelect){
+    var categories = __CATEGORIES__;
+    for(var i=0;i<categories.length;i++){
+        var category = categories[i];
+	    var option = document.createElement("option");
+		option.innerText = category;
+		option.value = category;
+		parentSelect.appendChild(option);
+    }
+}
+
+for(var i=0;i<productCategories.length;i++){
+    createCategoryOptions(productCategories[i]);
+}
+for(var i=0;i<productCategories.length;i++){
+    productCategories[i].value=SELECTED_CATEG;
+	createChangeListenerForCatagories(productCategories[i]);
+}
+function createChangeListenerForCatagories(categ){
+    categ.addEventListener("change",function(){
+	    var form = document.createElement("form");
+		form.method="POST";
+		form.action="changeSelectedCategory";
+		var input = document.createElement("input");
+		input.setAttribute("value",categ.value);
+		input.setAttribute("name","productCategory");
+		form.appendChild(input);
+		//console.log(form);
+		document.body.appendChild(form);
+		form.submit();
+	});
+}
+
+var productNames = document.querySelectorAll(".productName");
+var SELECTED_PRODUCT = "__SELECTED_PRODUCT__";
+
+var prodLogs={};
+if(init_msg.startsWith("PROD_CHANGE_OBJ:")){
+    var prodLog_ = document.querySelector("#prodLog");
+    prodLogs=JSON.parse(init_msg.replace("PROD_CHANGE_OBJ:",""));
+	console.log(prodLogs);
+	if(prodLogs.length>0){
+	    for(var indx in prodLogs){
+		    var prodLog = prodLogs[indx];
+			var tr = document.createElement("tr");
+			prodLog_.appendChild(tr);
+			var td_0 = document.createElement("td");
+			td_0.innerText=SELECTED_PRODUCT;
+			tr.appendChild(td_0);
+			var td0 = document.createElement("td");
+			td0.innerText=prodLog.type;
+			tr.appendChild(td0);
+			var td1 = document.createElement("td");
+			td1.innerText=prodLog.date;
+			tr.appendChild(td1);
+			var td2 = document.createElement("td");
+			td2.innerText=prodLog.time;
+			tr.appendChild(td2);
+			var td3 = document.createElement("td");
+			td3.innerText=prodLog.qty;
+			tr.appendChild(td3);
+			
+		}
+	}
+}
+
+function createProductOptions(parentSelect){
+    var pNames = __P_NAMES__;
+    for(var i=0;i<pNames.length;i++){
+        var pName = pNames[i];
+	    var option = document.createElement("option");
+		option.innerText = pName;
+		option.value = pName;
+		parentSelect.appendChild(option);
+    }
+}
+
+for(var i=0;i<productNames.length;i++){
+    createProductOptions(productNames[i]);
+}
+
+for(var i=0;i<productNames.length;i++){
+    productNames[i].value=SELECTED_PRODUCT;
+	createChangeListenerForProduct(SELECTED_CATEG,productNames[i]);
+}
+
+function createChangeListenerForProduct(categName,prod){
+    prod.addEventListener("change",function(){
+	    var form = document.createElement("form");
+		form.method="POST";
+		form.action="changeSelectedProduct";
+		var input = document.createElement("input");
+		input.setAttribute("value",prod.value);
+		input.setAttribute("name","productName");
+		form.appendChild(input);
+		var input2 = document.createElement("input");
+		input2.setAttribute("value",categName);
+		input2.setAttribute("name","productCategory");
+		form.appendChild(input2);
+		//console.log(form);
+		document.body.appendChild(form);
+		form.submit();
+	});
+}
+
+var availQty = document.querySelectorAll(".availQty");
+var avlQt = "__AVAIL_QTY__";
+for(var i=0;i<availQty.length;i++){
+    console.log(avlQt);
+    availQty[i].value = avlQt;
+	availQty[i].innerText = avlQt;
+}
+
+</script>
+</body>
+</html>
